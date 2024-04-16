@@ -1,0 +1,22 @@
+<table>
+	<tr>
+		<td>No.</td>
+		<td>Time</td>
+		<td>Source</td>
+		<td>Destination</td>
+		<td>Protocol</td>
+		<td>Length</td>
+		<td>Info</td>
+	</tr>
+	@for (packet of packets; track packet.no) {
+		<tr [ngClass]="{'tcp': packet.protocol == 'TCP', 'udp': packet.protocol == 'UDP'}">
+			<td>{{packet.no}}</td>
+			<td>{{packet.time}}</td>
+			<td>{{packet.src}}</td>
+			<td>{{packet.dst}}</td>
+			<td>{{packet.protocol}}</td>
+			<td>{{packet.length}}</td>
+			<td>{{packet.info}}</td>
+		</tr>
+	}
+</table>
