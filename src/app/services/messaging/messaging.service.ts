@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { Node, Edge } from '../interfaces/interfaces';
+import { Node, Edge } from '../../interfaces/interfaces';
 @Injectable({
   providedIn: 'root'
 })

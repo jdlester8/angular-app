@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter } from '@angular/core';
-import { MessagingService } from '../../services/messaging.service';
+import { MessagingService } from '../../services/messaging/messaging.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({

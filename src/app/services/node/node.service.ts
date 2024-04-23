@@ -1,8 +1,8 @@
 import { Injectable, Type } from '@angular/core';
-import { Node, Router, Switch, IPv4Address, IPv6Address } from '../interfaces/interfaces';
+import { Node, Router, Switch, IPv4Address, IPv6Address } from '../../interfaces/interfaces';
 import { v4 as uuidv4 } from 'uuid';
-import { HttpService } from './http.service';
-import { MessagingService } from './messaging.service';
+import { HttpService } from '../http/http.service';
+import { MessagingService } from '../messaging/messaging.service';
 
 @Injectable({providedIn: 'root'})
 export class NodeService {

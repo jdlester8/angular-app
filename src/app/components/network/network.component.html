@@ -1,0 +1,25 @@
+<!--
+<svg id="graph-container" width="1000" height="600" 
+[cdkContextMenuTriggerFor]="context_menu">
+-->
+<svg id="graph-container" width="1000" height="600">
+</svg>
+
+<app-contextmenu></app-contextmenu>
+
+<ng-template #context_menu>
+    <div class="example-menu" cdkMenu>
+      <button class="example-menu-item" cdkMenuItem [cdkMenuTriggerFor]="test">Type</button>
+      <button class="example-menu-item" cdkMenuItem>Configuration</button>
+      <button class="example-menu-item" cdkMenuItem (click)="false">Packet Capture</button>
+    </div>
+  </ng-template>
+  
+  <ng-template #test>
+    <div class="example-menu" cdkMenu>
+      <button class="example-menu-item" cdkMenuItem>Share</button>
+      <button class="example-menu-item" cdkMenuItem>Open</button>
+      <button class="example-menu-item" cdkMenuItem>Make a Copy</button>
+      <hr />
+    </div>
+  </ng-template>

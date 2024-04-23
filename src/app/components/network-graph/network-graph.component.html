@@ -1,0 +1,46 @@
+<svg appSvgDirective>
+    @for (node of nodes; track node.id) {
+        <svg:circle appNodeDirective cdkDrag  
+        [cdkContextMenuTriggerFor]="" [cdkDragDisabled]="!isNodeMode">
+        </svg:circle>
+
+        <!--
+        <svg:circle appNodeDirective cdkDrag (cdkDragMoved)="nodeDragged($event)" 
+        [cdkContextMenuTriggerFor]="" [cdkDragDisabled]="!isNodeMode" 
+        (click)="!isNodeMode ? linkCreated($event) : null">
+        </svg:circle>
+        
+        @if (mode === 0) {
+            <svg:circle appNodeDirective cdkDrag (cdkDragMoved)="nodeDragged($event)" 
+            [cdkContextMenuTriggerFor]="">
+            </svg:circle>
+        } @else {
+            <svg:circle appNodeDirective cdkDrag [cdkDragDisabled]="true"
+            [cdkContextMenuTriggerFor]="">
+            </svg:circle>
+        }
+        -->
+    }
+    <svg:image appNodeDirective cdkDrag>
+    </svg:image>
+    <svg:line appLinkDirective></svg:line>
+    <svg:text appNodeDirective ="100" y="100">Create Node</svg:text>
+    <svg:text appLinkDirective x="100" y="150">Create Link</svg:text>
+</svg>
+
+<ng-template #context_menu>
+    <div class="example-menu" cdkMenu>
+      <button class="example-menu-item" cdkMenuItem [cdkMenuTriggerFor]="test">Type</button>
+      <button class="example-menu-item" cdkMenuItem>Configuration</button>
+      <button class="example-menu-item" cdkMenuItem (click)="false">Packet Capture</button>
+    </div>
+  </ng-template>
+  
+  <ng-template #test>
+    <div class="example-menu" cdkMenu>
+      <button class="example-menu-item" cdkMenuItem>Share</button>
+      <button class="example-menu-item" cdkMenuItem>Open</button>
+      <button class="example-menu-item" cdkMenuItem>Make a Copy</button>
+      <hr />
+    </div>
+  </ng-template>

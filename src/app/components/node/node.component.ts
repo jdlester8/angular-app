@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { NodeService } from '../../services/node.service';
+import { NodeService } from '../../services/node/node.service';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { EdgeDirective } from '../../directives/edge.directive';
 import { Node, Edge } from '../../interfaces/interfaces';
