@@ -5,6 +5,7 @@ import { IoGraphComponent } from './components/io-graph/io-graph.component';
 import { NetworkComponent } from './components/network/network.component';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { MusicComponent } from './components/music/music.component';
+import { ToneComponent } from './components/tone/tone.component';
 
 export const routes: Routes = [
   { path: 'network', component: NodeComponent },
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: 'io-graph', component: IoGraphComponent },
   { path: 'd3', component: NetworkComponent },
   { path: 'network-graph', component: NetworkGraphComponent },
-  { path: 'music', component: MusicComponent}
+  { path: 'music', component: MusicComponent},
+  { path: 'tone', component: ToneComponent}
 ];

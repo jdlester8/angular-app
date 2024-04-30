@@ -1,15 +1,9 @@
 import { Component, AfterViewInit } from '@angular/core';
 import * as d3 from 'd3';
+import { AsyncPipe } from '@angular/common';
 
-type Notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+type Notes = ["E", "F", "F#", "G", "Ab", "A", "Bb", "B", "C", "C#", "D", "Eb"];
 type GuitarStrings = ["E", "A", "D", "B", "G", "e"];
-type Octave = [0, 1, 2, 3, 4, 5, 6, 7];
-type MajorScale = [0, 2, 4, 5, 7, 9, 11];
-type MinorScale = [0, 2, 3, 5, 7, 8, 10];
-type MajorPentatonicScale = [0, 2, 4, 7, 9];
-type MinorPentatonicScale = [0, 3, 5, 7, 10];
-type Scale = Octave | MajorScale | MinorScale | MajorPentatonicScale | MinorPentatonicScale;
-
 /*
 interface NoteCircleSelection extends d3.Selection<SVGCircleElement, string, SVGGElement, unknown> {}
 interface NoteTextSelection extends d3.Selection<SVGTextElement, string, SVGGElement, unknown> {}
@@ -19,31 +13,98 @@ interface GuitarStringSelection extends d3.Selection<SVGLineElement, string, SVG
 @Component({
   selector: 'app-music',
   standalone: true,
-  imports: [],
+  imports: [AsyncPipe],
   templateUrl: './music.component.html',
   styleUrl: './music.component.css'
 })
 export class MusicComponent implements AfterViewInit {
-[x: string]: any;
 
   strings: GuitarStrings = ["E", "A", "D", "B", "G", "e"];
-  fundamentalNotes: Notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+  fundamentalNotes: Notes = ["E", "F", "F#", "G", "Ab", "A", "Bb", "B", "C", "C#", "D", "Eb"];
   guitarNotes = [...Array(11)].flatMap(() => this.fundamentalNotes);
-  frets = Array.from({ length: 22 });
-  
+  frets: Array<string> = Array.from({ length: 22 });
+  key: string = "E";
+  scale: string = "None";
+
   constructor() {
+    this.guitarNotes.forEach((d, i) => {
+      const noteIndex = this.fundamentalNotes.findIndex(x => x===d);
+        i % 12 === 5 || i % 12 === 11 ? 
+          this.guitarNotes[i+1] = this.fundamentalNotes[(noteIndex + 13)%12] :
+        i % 12 === 3 || i % 12 === 9 ? 
+          this.guitarNotes[i+1] = this.fundamentalNotes[(noteIndex + 4)%12] :
+          this.guitarNotes[i+1] = this.fundamentalNotes[(noteIndex + 5)%12];
+    });
+    this.guitarNotes.splice(this.guitarNotes.length - 1, 1);
+
+    
     /*
-    const notes: Notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-    const strings: GuitarStrings = ["E", "A", "D", "B", "G", "e"];
-    const octave: Octave = [0, 1, 2, 3, 4, 5, 6, 7];
-    const scale = getScale("E", notes, octave);
-    const fretboard = [...Array(8)].flatMap(() => scale);
-    console.log(fretboard);
+    const oscillator = audioCtx.createOscillator();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // value in hertz
+    oscillator.connect(audioCtx.destination);
+    oscillator.start();
+    */
+    /*
+    const source = audioCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioCtx.destination);
+    source.start();
     */
   }
 
   mathTrunc(n: number) {
     return Math.trunc(n);
+  }
+
+  changeKey(event: any) {
+    const index = event.target.options.selectedIndex;
+    this.key = this.fundamentalNotes[index];
+  }
+
+  changeScale(event: any) {
+    const index = event.target.options.selectedIndex;
+    if (index == 0) {
+      this.scale = "None";
+    } else if (index == 1) {
+      this.scale = "Major";
+    } else if (index == 2) {
+      this.scale = "Minor";
+    } else if (index == 3) {
+      this.scale = "MajorPentatonic";
+    } else if (index == 4) {
+      this.scale = "MinorPentatonic";
+    }
+  }
+
+  getScale(): Array<string> {
+    let scaleMap: Array<number>;
+    if (this.scale === "None") {
+      scaleMap = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    } else if (this.scale === "Major") {
+        scaleMap = [0, 2, 4, 5, 7, 9, 11];
+    } else if (this.scale === "Minor") {
+        scaleMap = [0, 2, 3, 5, 7, 8, 10];
+    } else if (this.scale === "MajorPentatonic") {
+        scaleMap = [0, 2, 4, 7, 9];
+    } else if (this.scale === "MinorPentatonic") {
+        scaleMap = [0, 3, 5, 7, 10];
+    } else {
+        scaleMap = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    }
+
+    const rootNoteIndex: any = this.fundamentalNotes.findIndex(x => x===this.key)
+    const scale: string[] = [];
+
+    scaleMap.map((v) => {
+      scale.push(this.fundamentalNotes[(rootNoteIndex + v) % 12]);
+    });
+    return scale;
+  }
+
+  isNoteInScale(note: string) {
+    return this.getScale().includes(note);
   }
 
   ngAfterViewInit() {
@@ -75,7 +136,7 @@ export class MusicComponent implements AfterViewInit {
   }
 }
 
-
+/*
 const getScale = (rootNote: string, notes: Notes, srcScale: Scale): unknown[] => {
   const rootNoteIndex: number = notes.findIndex(note => note === rootNote);
   const dstScale = Array.from({ length: srcScale.length });
@@ -84,18 +145,4 @@ const getScale = (rootNote: string, notes: Notes, srcScale: Scale): unknown[] =>
   });
   return dstScale;
 };
-
-/*
-const notes: Notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-const octave: Octave = [0, 1, 2, 3, 4, 5, 6, 7];
-const scale = getScale("E", notes, octave);
-const fretboard = [...Array(8)].flatMap(() => scale);
-console.log(fretboard);
-
-const srcNotes: Notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-const dstNotes: string[] = Array.from({ length: 30 });
-dstNotes.map((d, i) => {
-  dstNotes[i] = srcNotes[i%12];
-});
-console.log(dstNotes);
 */
