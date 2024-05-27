@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, NgZone, ViewChild } from '@angular/core';
 import * as Tone from 'tone';
 
 @Component({
@@ -8,14 +8,17 @@ import * as Tone from 'tone';
   templateUrl: './tone.component.html',
   styleUrl: './tone.component.css'
 })
-export class ToneComponent implements AfterViewInit {
+export class ToneComponent {
   @ViewChild("canvas") canvas!: ElementRef<HTMLCanvasElement>;
   audioCtx: AudioContext;
   audio: HTMLAudioElement;
   source: MediaElementAudioSourceNode;
   analyser: AnalyserNode;
+  freq: Uint8Array;
+  redraw: number;
 
   constructor() {
+
     this.audioCtx = new AudioContext();
     this.analyser = this.audioCtx.createAnalyser();
 
@@ -26,7 +29,8 @@ export class ToneComponent implements AfterViewInit {
     this.source.connect(this.analyser);
     this.analyser.connect(this.audioCtx.destination);
 
-    this.analyser.fftSize = 2048;
+    this.analyser.fftSize = 256;
+    this.freq = new Uint8Array(this.analyser.frequencyBinCount);
   }
 
   play() {
@@ -34,28 +38,34 @@ export class ToneComponent implements AfterViewInit {
       this.audioCtx.resume();
     }
     this.audio.play();
+    this.draw();
+  }
 
-    setTimeout(() => {
-      this.getFrequencyData();
-    }, 1000);
+  pause() {
+    this.audio.pause();
+  }
+
+  stop() {
+    this.audio.pause();
+    this.audio.currentTime = 0;
+    this.redraw = 0;
   }
 
   getFrequencyData(): Uint8Array {
     // Get frequency data
-    const freq: Uint8Array = new Uint8Array(this.analyser.frequencyBinCount);
-    this.analyser.getByteFrequencyData(freq);
-    return freq;
+    this.analyser.getByteFrequencyData(this.freq);
+    return this.freq;
   }
 
   draw = () => {
-    requestAnimationFrame(this.draw);
-    
+    this.redraw = requestAnimationFrame(this.draw);
+    const bufferLength = this.analyser.frequencyBinCount;
+    this.analyser.getByteFrequencyData(this.freq);
+
     const WIDTH = 1000;
     const HEIGHT = 300;
     const canvasCtx = this.canvas.nativeElement.getContext("2d")!;
-    const bufferLength = this.analyser.frequencyBinCount;
-    const freq = this.getFrequencyData();
-  
+    
     canvasCtx.fillStyle = "rgb(0 0 0)";
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
   
@@ -64,16 +74,12 @@ export class ToneComponent implements AfterViewInit {
     let x = 0;
   
     for (let i = 0; i < bufferLength; i++) {
-      barHeight = freq[i];
+      barHeight = this.freq[i];
   
       canvasCtx.fillStyle = `rgb(${barHeight + 100} 50 50)`;
       canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
   
       x += barWidth + 1;
     }
-  }
-
-  ngAfterViewInit() {
-    this.draw();
   }
 }

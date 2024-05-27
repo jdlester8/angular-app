@@ -1,6 +1,11 @@
 <div>
-    Tuning <select>
+    Tuning <select (change)="changeTuning($event)">
         <option>Standard</option>
+        <option>Drop D</option>
+        <option>Drop C#</option>
+        <option>Drop C</option>
+        <option>Drop B</option>
+        <option>Drop A#</option>
     </select>
     Key <select (change)="changeKey($event)">
         @for (note of fundamentalNotes; track note; let i = $index) {
@@ -15,16 +20,19 @@
         <option>Minor Pentatonic</option>
     </select>
     <!-- <input type="color"> -->
-    {{ getScale() }}
+    <div>
+        {{ getScale() }}
+    </div>
 </div>
 <svg width="1000" height="600">
     @for (string of strings; track string; let i = $index) {
         <svg:line x1="100" attr.y1="{{ 275 - i*35 }}" x2="850" attr.y2="{{ 275 - i*35 }}" stroke="black"></svg:line>
-    }
-    @for (note of guitarNotes; track note; let i = $index) {
-        @if (isNoteInScale(note)) {
-            <svg:circle attr.cx="{{ 100 + mathTrunc(i/6)*35 }}" attr.cy="{{ 275 - i%6*35 }}" r="15" fill="steelblue"></svg:circle>
-            <svg:text attr.x="{{ 100 + mathTrunc(i/6)*35 - 10 }}" attr.y="{{ 275 - i%6*35 + 5 }}">{{ note }}</svg:text>
+        <!-- <svg:text attr.x="{{ 100 - 10 }}" attr.y="{{ 275 - i*35 + 5 }}">{{ string[0] }}</svg:text> -->
+        @for (note of string; track note; let j = $index) {
+            @if (isNoteInScale(note)) {
+                <svg:circle attr.cx="{{ 100 + j*35 }}" attr.cy="{{ 275 - i*35 }}" r="15" fill="steelblue"></svg:circle>
+                <svg:text attr.x="{{ 100 + j*35 - 10 }}" attr.y="{{ 275 - i*35 + 5 }}">{{ note }}</svg:text>
+            }
         }
     }
     @for (fret of frets; track fret; let i = $index) {

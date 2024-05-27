@@ -6,6 +6,7 @@ import { NetworkComponent } from './components/network/network.component';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { MusicComponent } from './components/music/music.component';
 import { ToneComponent } from './components/tone/tone.component';
+import { TimeGraphComponent } from './components/time-graph/time-graph.component';
 
 export const routes: Routes = [
   { path: 'network', component: NodeComponent },
@@ -14,5 +15,6 @@ export const routes: Routes = [
   { path: 'd3', component: NetworkComponent },
   { path: 'network-graph', component: NetworkGraphComponent },
   { path: 'music', component: MusicComponent},
-  { path: 'tone', component: ToneComponent}
+  { path: 'tone', component: ToneComponent},
+  { path: 'clock', component: TimeGraphComponent}
 ];

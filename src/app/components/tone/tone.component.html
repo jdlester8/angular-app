@@ -1,2 +1,8 @@
-<button (click)="play()"></button>
+<button (click)="play()">Play</button>
+<button (click)="pause()">Pause</button>
+<button (click)="stop()">Stop</button>
 <canvas #canvas width="1000" height="300"></canvas>
+
+@for (_freq of freq; track freq) {
+    {{ _freq }}
+}

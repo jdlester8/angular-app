@@ -28,10 +28,10 @@ class Link {
 }
 
 // Create a selection interface for circles
-interface CircleSelection extends d3.Selection<SVGCircleElement, Node, SVGGElement, unknown> {}
+//interface CircleSelection extends d3.Selection<SVGCircleElement, Node, SVGGElement, unknown> {}
 
 // Create a selection interface for lines
-interface LineSelection extends d3.Selection<SVGLineElement, Link, SVGGElement, unknown> {}
+//interface LineSelection extends d3.Selection<SVGLineElement, Link, SVGGElement, unknown> {}
 
 
 @Component({
@@ -45,18 +45,18 @@ export class NetworkComponent {
   
   @ViewChild('context_menu') contextMenu!: TemplateRef<any>;
 
-  constructor(private networkService: NetworkService, private cdr: ChangeDetectorRef, private environmentInjector: EnvironmentInjector, private componentFactoryResolver: ComponentFactoryResolver, private viewContainerRef: ViewContainerRef) { 
+  constructor(private networkService: NetworkService) { 
   }
   ngAfterViewInit(): void {
-    const svg = d3.select<SVGSVGElement, Node>("#graph-container");
+    this.drawLines();
+    this.drawCircles();
+    //this.processLinkMode();
+    this.processMoveMode();
+  }
 
-    // Create a group for circles and lines
-    const group = svg.append('g');
-
-    // Update data join for circles
-    const circles: CircleSelection = group.selectAll<SVGCircleElement, Node>('circle').data(this.networkService.nodes);
-    const lines: LineSelection = group.selectAll<SVGLineElement, Link>('line').data(this.networkService.links);
-
+  drawLines() {
+    const svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select("#graph-container");
+    const lines = svg.selectAll<SVGLineElement, Link>('line').data(this.networkService.links);
     lines
       .enter()
       .append('line')
@@ -66,62 +66,85 @@ export class NetworkComponent {
       .attr('y2', d => d.node2.y)
       .attr('stroke', 'black')
       .attr('stroke-width', 2);
+  }
 
-    // Enter selection for circles
+  drawCircles() {
+    const svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select("#graph-container");
+    const circles = svg.selectAll<SVGCircleElement, Node>('circle').data(this.networkService.nodes);
     circles
       .enter()
       .append('circle')
       .attr('cx', d => d.x)
       .attr('cy', d => d.y)
       .attr('r', 10)
-      .attr('fill', 'steelblue')
-      .call(dragCircle)
-      .on('contextmenu', (e) => {
-        e.preventDefault();
-        //const component = createComponent(ContextmenuComponent, { environmentInjector: this.environmentInjector });
-        //svg.append('app-contextmenu');
-        //this.viewContainerRef.createEmbeddedView()
-        //this.cdr.detectChanges();
-        //this.openContextMenu(1, 1);
-        //this.viewContainerRef.createEmbeddedView(this.contextMenu);
+      .attr('fill', 'steelblue');
+      //.call(dragCircle)
+  }
+
+  createLine(selection: d3.Selection<SVGCircleElement, Node, SVGSVGElement, unknown>) {
+    return new Promise(function(resolve) {
+      selection
+      .on("mousedown", function(event) {
+        console.log(event);
+        selection.on("mousedown", null);
+        resolve(event);
       });
-
-    
-      //.call(this.dragLine); // Call drag behavior for lines
+    });
   }
 
-  openContextMenu = (x: number, y: number): void => {
-    // Dynamically create and attach the context menu component
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ContextmenuComponent);
-    const componentRef = this.viewContainerRef.createComponent(componentFactory);
-
-    // Set initial position of the context menu based on mouse coordinates
-    //componentRef.instance.setPosition(x, y);
+  dragAndDropLine(selection: d3.Selection<SVGCircleElement, Node, SVGSVGElement, unknown>) {
+    const svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select("#graph-container");
+    return new Promise(function(resolve) {
+      svg
+      .on("mousemove", function(event) {
+        console.log(event);
+      })
+      .on("mouseup", function(event) {
+        console.log(event);
+        svg.on("mousemove", null);
+        svg.on("mouseup", null);
+        resolve(event);
+      });
+    });
   }
 
+  processLinkMode() {
+    const svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select("#graph-container");
+    const circles = svg.selectAll<SVGCircleElement, Node>('circle').data(this.networkService.nodes);
+    const loop = async (selection: d3.Selection<SVGCircleElement, Node, SVGSVGElement, unknown>) => {
+      await this.createLine(selection);
+      await this.dragAndDropLine(selection);
+      loop(selection);
+    }
+    circles.call(loop);
+  }
+
+  processMoveMode() {
+    const svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any> = d3.select("#graph-container");
+    const circles = svg.selectAll<SVGCircleElement, Node>('circle').data(this.networkService.nodes);
+    const dragCircle = d3.drag<SVGCircleElement, Node>()
+    .on('start', function (event, d) {
+      d3.select(this).raise().attr('stroke', 'black');
+    })
+    .on('drag', function (event, d) {
+      d3.select(this)
+        .attr('cx', d.x = event.x)
+        .attr('cy', d.y = event.y);
+
+      //update lines
+      const lines = d3.selectAll<SVGLineElement, Link>('line');
+
+      lines
+      .attr('x1', d => d.node1.x)
+      .attr('y1', d => d.node1.y)
+
+      lines
+      .attr('x2', d => d.node2.x)
+      .attr('y2', d => d.node2.y);
+    })
+    .on('end', function (event, d) {
+      d3.select(this).attr('stroke', null);
+    });
+    circles.call(dragCircle);
+  }
 }
-
-  // Define drag behavior for circles
-  const dragCircle = d3.drag<SVGCircleElement, Node>()
-  .on('start', function (event, d) {
-    d3.select(this).raise().attr('stroke', 'black');
-  })
-  .on('drag', function (event, d) {
-    d3.select(this)
-      .attr('cx', d.x = event.x)
-      .attr('cy', d.y = event.y);
-
-    //update lines
-    const lines = d3.selectAll<SVGLineElement, Link>('line');
-
-    lines
-    .attr('x1', d => d.node1.x)
-    .attr('y1', d => d.node1.y)
-
-    lines
-    .attr('x2', d => d.node2.x)
-    .attr('y2', d => d.node2.y);
-  })
-  .on('end', function (event, d) {
-    d3.select(this).attr('stroke', null);
-  });

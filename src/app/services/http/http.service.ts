@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 export class HttpService {
 
   constructor(private http: HttpClient) {
+    /*
     const req = this.http.get("https://raw.githubusercontent.com/YangModels/yang/main/standard/ietf/DRAFT/network-topology%402013-10-21.yang", 
     {
       headers: { 
@@ -20,5 +21,6 @@ export class HttpService {
     req.subscribe(res => {
       console.log(res);
     });
+    */
   }
 }
