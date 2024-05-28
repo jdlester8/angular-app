@@ -37,7 +37,7 @@ interface Point {
 })
 export class IoGraphComponent implements AfterViewInit {
 
-  constructor(private clockService: ClockService) {
+  constructor() {
 
   }
 

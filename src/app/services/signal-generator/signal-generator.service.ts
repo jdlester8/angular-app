@@ -4,48 +4,61 @@ import { Subject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class ClockService {
+export class SignalGeneratorService {
 
-  public clock$: Subject<number>;
-  private clock: Clock;
+  public signal$: Subject<{time: number, value: number}>;
+  public signals$: Array<Subject<{time: number, value: number}>>;
+  private interval: number;
+  private generator: Clock;
 
-  constructor() {
-    this.clock$ = new Subject<number>();
-    this.clock = new Clock(10000); // Initialize with the default interval of 10 seconds
+  constructor(@Inject("clockInterval") @Optional() interval: number) {
+    this.signal$ = new Subject<{time: number, value: number}>();
+    this.interval = interval || 50;
     this.startClock();
   }
 
+  createSignal(): Subject<{time: number, value: number}> {
+    const i = this.signals$.push(new Subject<{time: number, value: number}>());
+    return this.signals$[i];
+  }
+
   private async startClock() {
-    for await (const tick of this.clock) {
-      this.clock$.next(tick);
+    this.generator = new Clock(this.interval);
+    for await (const obj of this.generator) {
+      this.signal$.next({
+        time: obj.time,
+        value: obj.value
+      });
     }
   }
 
   updateInterval(interval: number) {
-    this.clock.update(interval);
+    this.generator.update(interval);
   }
 
   getInterval() {
-    return this.clock.interval;
+    return this.interval;
   }
 }
 
-class Clock implements AsyncIterable<number> {
-  private startTime: number;
+class Clock implements AsyncIterable<{time: number, value: number}> {
+  startTime = performance.now();
   interval: number;
 
   constructor(interval?: number) {
-    this.interval = interval ?? 1000;
-    this.startTime = performance.now();
+    this.interval = interval ?? 50;
   }
 
-  async *[Symbol.asyncIterator](): AsyncIterator<number> {
+  async *[Symbol.asyncIterator](): AsyncIterator<{time: number, value: number}> {
     let expectedTime = this.startTime;
 
     while (true) {
       const currentTime = performance.now();
       const timeSinceStart = currentTime - this.startTime;
-      yield timeSinceStart;
+      yield {
+        time: timeSinceStart,
+        value: Math.sin(currentTime)
+      };
 
       // Calculate the next expected time
       expectedTime += this.interval;
