@@ -1,5 +1,5 @@
 <div>
-    Tuning <select (change)="changeTuning($event)">
+    Tuning <select [formControl]="tuning">
         <option>Standard</option>
         <option>Drop D</option>
         <option>Drop C#</option>
@@ -7,18 +7,29 @@
         <option>Drop B</option>
         <option>Drop A#</option>
     </select>
-    Key <select (change)="changeKey($event)">
+    Key <select [formControl]="key">
         @for (note of fundamentalNotes; track note; let i = $index) {
             <option>{{ note }}</option>
         }
     </select>
-    Scale <select (change)="changeScale($event)">
-        <option>None</option>
-        <option>Major</option>
-        <option>Minor</option>
-        <option>Major Pentatonic</option>
-        <option>Minor Pentatonic</option>
+    Scale <select [formControl]="scale">
+        <option value="None">None</option>
+        <option value="Major">Major</option>
+        <option value="Minor">Minor</option>
+        <option value="MajorPentatonic">Major Pentatonic</option>
+        <option value="MinorPentatonic">Minor Pentatonic</option>
+        <option value="MajorTriad">Major Triad</option>
+        <option value="MinorTriad">Minor Triad</option>
     </select>
+    Shape <select [formControl]="shape">
+        <option>All</option>
+        <option>C</option>
+        <option>A</option>
+        <option>G</option>
+        <option>E</option>
+        <option>D</option>
+    </select>
+    Highlight Root Note <input type="checkbox" [formControl]="highlightRootNote">
     <!-- <input type="color"> -->
     <div>
         {{ getScale() }}
@@ -30,7 +41,11 @@
         <!-- <svg:text attr.x="{{ 100 - 10 }}" attr.y="{{ 275 - i*35 + 5 }}">{{ string[0] }}</svg:text> -->
         @for (note of string; track note; let j = $index) {
             @if (isNoteInScale(note)) {
-                <svg:circle attr.cx="{{ 100 + j*35 }}" attr.cy="{{ 275 - i*35 }}" r="15" fill="steelblue"></svg:circle>
+                @if (note == key.value && highlightRootNote) {
+                    <svg:circle attr.cx="{{ 100 + j*35 }}" attr.cy="{{ 275 - i*35 }}" r="15" fill="yellow"></svg:circle>
+                } @else {
+                    <svg:circle attr.cx="{{ 100 + j*35 }}" attr.cy="{{ 275 - i*35 }}" r="15" fill="steelblue"></svg:circle>
+                }
                 <svg:text attr.x="{{ 100 + j*35 - 10 }}" attr.y="{{ 275 - i*35 + 5 }}">{{ note }}</svg:text>
             }
         }
