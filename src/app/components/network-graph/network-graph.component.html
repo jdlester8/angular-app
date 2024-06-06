@@ -1,46 +1,68 @@
-<svg appSvgDirective>
-    @for (node of nodes; track node.id) {
-        <svg:circle appNodeDirective cdkDrag  
-        [cdkContextMenuTriggerFor]="" [cdkDragDisabled]="!isNodeMode">
-        </svg:circle>
-
-        <!--
-        <svg:circle appNodeDirective cdkDrag (cdkDragMoved)="nodeDragged($event)" 
-        [cdkContextMenuTriggerFor]="" [cdkDragDisabled]="!isNodeMode" 
-        (click)="!isNodeMode ? linkCreated($event) : null">
-        </svg:circle>
-        
-        @if (mode === 0) {
-            <svg:circle appNodeDirective cdkDrag (cdkDragMoved)="nodeDragged($event)" 
-            [cdkContextMenuTriggerFor]="">
-            </svg:circle>
-        } @else {
-            <svg:circle appNodeDirective cdkDrag [cdkDragDisabled]="true"
-            [cdkContextMenuTriggerFor]="">
-            </svg:circle>
-        }
-        -->
+<div>
+  <mat-form-field appearance="fill" style="width: 100px;">
+    <mat-label>Mode</mat-label>
+    <mat-select [formControl]="mode">
+      <mat-option value="Move">Move</mat-option>
+      <mat-option value="Link">Link</mat-option>
+      <mat-option value="Run">Run</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button mat-button [cdkMenuTriggerFor]="create_menu" class="example-standalone-trigger">Create</button>
+  <ng-template #create_menu>
+    <div class="example-menu" cdkMenu>
+      <button class="example-menu-item" cdkMenuItem (click)="createNode()">Host</button>
+      <button class="example-menu-item" cdkMenuItem>Switch</button>
+      <button class="example-menu-item" cdkMenuItem>Router</button>
+    </div>
+  </ng-template>
+</div>
+<svg 
+  dragBehavior 
+  (dragNode)="drag($event)"
+  (dragNodeEnd)="dragEnd($event)"
+  linkBehavior 
+  width="100%" height="100%">
+  @if (selectLine) {
+    <line
+      [attr.x1]="selectLine.x1" 
+      [attr.y1]="selectLine.y1" 
+      [attr.x2]="selectLine.x2" 
+      [attr.y2]="selectLine.y2" 
+      stroke="black">
+    </line>
+  }
+  @for (adjacency of graph.getAdjacencyList(); track adjacency) {
+    @for (node of adjacency[1]; track node) {
+      <line
+        [attr.x1]="adjacency[0].x" 
+        [attr.y1]="adjacency[0].y" 
+        [attr.x2]="node.x" 
+        [attr.y2]="node.y"
+        stroke="black">
+      </line>
     }
-    <svg:image appNodeDirective cdkDrag>
-    </svg:image>
-    <svg:line appLinkDirective></svg:line>
-    <svg:text appNodeDirective ="100" y="100">Create Node</svg:text>
-    <svg:text appLinkDirective x="100" y="150">Create Link</svg:text>
+  }
+  @for (vertex of graph.getVertices(); track vertex) {
+    <circle nodeBehavior
+      [node]="vertex"
+      (nodeSelected)="selectNode($event)"     
+      [attr.cx]="vertex.x" 
+      [attr.cy]="vertex.y" 
+      fill="steelblue"
+      stroke="black"
+      r="10"
+      [cdkContextMenuTriggerFor]="context_menu"
+      (contextmenu)="onContextMenu($event, vertex)">
+    </circle>
+  }
 </svg>
 
 <ng-template #context_menu>
-    <div class="example-menu" cdkMenu>
-      <button class="example-menu-item" cdkMenuItem [cdkMenuTriggerFor]="test">Type</button>
-      <button class="example-menu-item" cdkMenuItem>Configuration</button>
-      <button class="example-menu-item" cdkMenuItem (click)="false">Packet Capture</button>
-    </div>
-  </ng-template>
-  
-  <ng-template #test>
-    <div class="example-menu" cdkMenu>
-      <button class="example-menu-item" cdkMenuItem>Share</button>
-      <button class="example-menu-item" cdkMenuItem>Open</button>
-      <button class="example-menu-item" cdkMenuItem>Make a Copy</button>
-      <hr />
-    </div>
-  </ng-template>
+  <div class="example-menu" cdkMenu>
+    <button class="example-menu-item" cdkMenuItem>IO Graph</button>
+    <button class="example-menu-item" cdkMenuItem>Configuration</button>
+    <button class="example-menu-item" cdkMenuItem>Packet Capture</button>
+    <button class="example-menu-item" cdkMenuItem>Console</button>
+    <button class="example-menu-item" cdkMenuItem (click)="deleteNode()">Delete</button>
+  </div>
+</ng-template>

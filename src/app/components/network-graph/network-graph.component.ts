@@ -1,76 +1,110 @@
-import { Component } from '@angular/core';
-import { NodeDirective } from '../../directives/node/node.directive';
-import { LinkDirective } from '../../directives/link/link.directive';
-import { SvgDirective } from '../../directives/svg/svg.directive';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CdkContextMenuTrigger, CdkMenuItem, CdkMenu, CdkMenuTrigger } from '@angular/cdk/menu';
-import { NetworkGraphService } from '../../services/network-graph/network-graph.service';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { NodeBehaviorDirective } from '../../directives/networkv3/node-behavior.directive';
+import { LinkBehaviorDirective } from '../../directives/networkv3/link-behavior.directive';
+import { DragBehaviorDirective } from '../../directives/networkv3/drag-behavior.directive';
+import { Networkv3Service } from '../../services/networkv3/networkv3.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { CdkMenuModule } from '@angular/cdk/menu';
+import { Graph } from '../../classes/network-graph/graph';
+import { Point } from '../../classes/network-graph/point';
 import { Node } from '../../classes/network-graph/node';
-import { Link } from '../../classes/network-graph/link';
+
+type Mode = "Move" | "Link" | "Run";
 
 @Component({
   selector: 'app-network-graph',
   standalone: true,
-  imports: [SvgDirective, NodeDirective, LinkDirective, DragDropModule, CdkContextMenuTrigger, CdkMenuItem, CdkMenu, CdkMenuTrigger],
+  imports: [MatButtonModule, MatSelectModule, CdkMenuModule, ReactiveFormsModule, 
+    DragBehaviorDirective, NodeBehaviorDirective, LinkBehaviorDirective],
   templateUrl: './network-graph.component.html',
-  styleUrl: './network-graph.component.css'
+  styleUrls: ['./network-graph.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NetworkGraphComponent {
 
-  nodes: Node[];
-  links: Link[];
-  isNodeMode: boolean;
+  mode: FormControl;
+  graph: Graph;
+  selectedNode: Node | null;
+  selectLine: { x1: number; y1: number; x2: number; y2: number; } | null;
+  selectedNodeCtxMenu: Node | null;
 
-  constructor(private networkGraphService: NetworkGraphService) {
+  constructor(private networkService: Networkv3Service, public dialog: MatDialog) {
+    this.mode = new FormControl("Move");
+    this.graph = new Graph();
+    this.selectedNode = null;
+    this.selectLine = null;
 
-    /*
-    this.nodes = [];
-    this.links = [];
-    this.isNodeMode = true;
-    */
+    this.mode.valueChanges.subscribe((mode: Mode) => {
+
+    });
   }
 
-  /*
-  nodeCreated(event: any) {
-    const node = { id: "" };
-    this.isNodeMode = true;
-    this.networkGraphService.isNodeMode$.next(true);
-    this.nodes.push(node);
-    this.networkGraphService.nodeCreated$.next(node);
-    console.log(event);
+  createNode() {
+    const node: Node = new Node("", 100, 100)
+    this.graph.addVertex(node);
   }
 
-  nodeDragStarted(event: any) {
-    console.log(event);
+  onContextMenu(event: MouseEvent, node: Node) {
+    this.selectedNodeCtxMenu = node;
   }
 
-  nodeDragged(event: any) {
-    const node = { id: "" };
-    this.networkGraphService.nodeDragged$.next(node);
+  deleteNode() {
+    if (this.selectedNodeCtxMenu) {
+      const result = this.graph.removeVertex(this.selectedNodeCtxMenu);
+      if (result === false) console.error("Error removing node");
+    }
   }
 
-  nodeDragEnded(event: any) {
-    console.log(event);
+  selectNode(node: Node) {
+    if (!this.selectedNode && this.mode.value === "Move") {
+      this.selectedNode = node;
+    } else if (!this.selectedNode && this.mode.value === "Link") {
+      this.selectedNode = node;
+      this.selectLine = {
+        x1: this.selectedNode.x,
+        y1: this.selectedNode.y,
+        x2: this.selectedNode.x,
+        y2: this.selectedNode.y
+      };
+    }
   }
 
-  linkCreated(event: any) {
-    const link = {};
-    this.links.push(link);
-    this.isNodeMode = false;
-    this.networkGraphService.isNodeMode$.next(false);
-    this.networkGraphService.linkCreated$.next(link);
+  drag(point: Point) {
+    if (this.selectedNode && this.mode.value === "Move") {
+      this.selectedNode.x = point.x;
+      this.selectedNode.y = point.y;
+    } else if (this.selectedNode && this.mode.value === "Link" && this.selectLine) {
+      this.selectLine.x2 = point.x;
+      this.selectLine.y2 = point.y;
+    }
   }
 
-  linkDragStarted(event: any) {
-    console.log(event);
+  dragEnd(point: Point) {
+    if (this.selectedNode && this.mode.value === "Move") {
+      
+    } else if (this.selectedNode && this.mode.value === "Link") {
+      const targetNode = this.getNodeByPosition(point);
+      if (targetNode) {
+        this.graph.addEdge(this.selectedNode, targetNode);
+      }
+    }
+    this.selectedNode = null;
+    this.selectLine = null;
   }
 
-  linkDragged(event: any) {
-    this.networkGraphService.linkDragged$.next(event);
+
+  getNodeByPosition(point: Point): Node | null {
+    for (const node of this.graph.getVertices()) {
+      if (node !== this.selectedNode) {
+        if (Math.sqrt(Math.pow((node.x - point.x), 2) + Math.pow((node.y - point.y), 2)) <= 10) {
+          return node;
+        }
+      }
+    }
+    return null;
   }
 
-  linkDragEnded(event: any) {
-    console.log(event);
-  }
-  */
 }

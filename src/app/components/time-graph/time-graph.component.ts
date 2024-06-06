@@ -5,6 +5,7 @@ import { debounceTime } from 'rxjs/operators';
 import { ClockService } from '../../services/clock/clock.service';
 import * as d3 from 'd3';
 import { SignalGeneratorService } from '../../services/signal-generator/signal-generator.service';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-time-graph',
@@ -14,7 +15,7 @@ import { SignalGeneratorService } from '../../services/signal-generator/signal-g
   providers: [
     ClockService
   ],
-  imports: [ReactiveFormsModule]
+  imports: [ReactiveFormsModule, MatSliderModule]
 })
 export class TimeGraphComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscription: Subscription;

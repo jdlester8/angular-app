@@ -44,12 +44,13 @@ export class NetworkService {
     const node2 = new Node("2", 100, 100);
     const node3 = new Node("3", 150, 75);
     const node4 = new Node("4", 200, 125);
+    const node5 = new Node("5", 250, 75);
 
     const link1 = new Link(node1, node2);
     const link2 = new Link(node2, node3);
     const link3 = new Link(node3, node4);
 
-    this.nodes.push(node1, node2, node3, node4);
+    this.nodes.push(node1, node2, node3, node4, node5);
     this.links.push(link1, link2, link3);
   }
 }

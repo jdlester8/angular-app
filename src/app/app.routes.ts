@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { NodeComponent } from './components/node/node.component';
 import { PacketCaptureComponent } from './components/packet-capture/packet-capture.component';
 import { IoGraphComponent } from './components/io-graph/io-graph.component';
-import { NetworkComponent } from './components/network/network.component';
+import { NetworkComponent } from './components/d3-network/network.component';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { MusicComponent } from './components/music/music.component';
 import { ToneComponent } from './components/tone/tone.component';
