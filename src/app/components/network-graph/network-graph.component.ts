@@ -11,6 +11,7 @@ import { CdkMenuModule } from '@angular/cdk/menu';
 import { Graph } from '../../classes/network-graph/graph';
 import { Point } from '../../classes/network-graph/point';
 import { Node } from '../../classes/network-graph/node';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 type Mode = "Move" | "Link" | "Run";
 
@@ -30,8 +31,10 @@ export class NetworkGraphComponent {
   selectedNode: Node | null;
   selectLine: { x1: number; y1: number; x2: number; y2: number; } | null;
   selectedNodeCtxMenu: Node | null;
+  safeSvg: SafeHtml;
 
-  constructor(private networkService: Networkv3Service, public dialog: MatDialog) {
+  constructor(private networkService: Networkv3Service, public dialog: MatDialog, 
+    private domSanitizer: DomSanitizer) {
     this.mode = new FormControl("Move");
     this.graph = new Graph();
     this.selectedNode = null;
@@ -40,6 +43,8 @@ export class NetworkGraphComponent {
     this.mode.valueChanges.subscribe((mode: Mode) => {
 
     });
+
+    this.loadSVG();
   }
 
   createNode() {
@@ -105,6 +110,14 @@ export class NetworkGraphComponent {
       }
     }
     return null;
+  }
+
+  async loadSVG() {
+    const response = await fetch("/assets/svg/switch.svg");
+    //const svgRouter = await fetch("/assets/svg/router.svg");
+    //const svgHost = await fetch("/assets/svg/host.svg");
+    
+    this.safeSvg = this.domSanitizer.bypassSecurityTrustHtml(await response.text());
   }
 
 }

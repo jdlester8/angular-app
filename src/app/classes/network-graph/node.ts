@@ -1,4 +1,6 @@
-export class Node {
+import { Draggable } from "./draggable";
+
+export class Node implements Draggable {
     
     id: string;
     x: number;

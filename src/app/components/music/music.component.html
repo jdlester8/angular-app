@@ -21,15 +21,10 @@
         <option value="MajorTriad">Major Triad</option>
         <option value="MinorTriad">Minor Triad</option>
     </select>
-    Shape <select [formControl]="shape">
-        <option>All</option>
-        <option>C</option>
-        <option>A</option>
-        <option>G</option>
-        <option>E</option>
-        <option>D</option>
+    Note Format <select [formControl]="format">
+        <option value="letter">Letter</option>
+        <option value="number">#</option>
     </select>
-    Highlight Root Note <input type="checkbox" [formControl]="highlightRootNote">
     <!-- <input type="color"> -->
     <div>
         {{ getScale() }}
@@ -41,12 +36,18 @@
         <!-- <svg:text attr.x="{{ 100 - 10 }}" attr.y="{{ 275 - i*35 + 5 }}">{{ string[0] }}</svg:text> -->
         @for (note of string; track note; let j = $index) {
             @if (isNoteInScale(note)) {
-                @if (note == key.value && highlightRootNote) {
-                    <svg:circle attr.cx="{{ 100 + j*35 }}" attr.cy="{{ 275 - i*35 }}" r="15" fill="yellow"></svg:circle>
+                @if (note == key.value) {
+                    <svg:circle attr.cx="{{ 100 + j*35 }}" attr.cy="{{ 275 - i*35 }}" r="15" fill="red"></svg:circle>
                 } @else {
                     <svg:circle attr.cx="{{ 100 + j*35 }}" attr.cy="{{ 275 - i*35 }}" r="15" fill="steelblue"></svg:circle>
                 }
-                <svg:text attr.x="{{ 100 + j*35 - 10 }}" attr.y="{{ 275 - i*35 + 5 }}">{{ note }}</svg:text>
+                <svg:text fill="white" attr.x="{{ 100 + j*35 - 10 }}" attr.y="{{ 275 - i*35 + 5 }}">
+                @if (format.value === "number") {
+                    {{ getNoteDegree(note) }}
+                } @else {
+                    {{ note }}
+                }
+                </svg:text>
             }
         }
     }

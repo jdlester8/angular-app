@@ -43,6 +43,7 @@
     }
   }
   @for (vertex of graph.getVertices(); track vertex) {
+    <!-- 
     <circle nodeBehavior
       [node]="vertex"
       (nodeSelected)="selectNode($event)"     
@@ -54,6 +55,8 @@
       [cdkContextMenuTriggerFor]="context_menu"
       (contextmenu)="onContextMenu($event, vertex)">
     </circle>
+    -->
+    <svg [innerHTML]="safeSvg"></svg>
   }
 </svg>
 

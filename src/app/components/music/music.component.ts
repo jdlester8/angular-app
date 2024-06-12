@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import * as d3 from 'd3';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 
 @Component({
@@ -18,16 +17,14 @@ export class MusicComponent {
   tuning: FormControl;
   key: FormControl;
   scale: FormControl;
-  shape: FormControl;
-  highlightRootNote: FormControl;
+  format: FormControl;
 
   constructor() {
     this.initializeGuitarNotes();
     this.tuning = new FormControl("Standard");
     this.key = new FormControl("E");
     this.scale = new FormControl("None");
-    this.shape = new FormControl("All");
-    this.highlightRootNote = new FormControl(true);
+    this.format = new FormControl("letter");
 
     this.tuning.valueChanges.subscribe((event) => {
       console.log(event);
@@ -57,9 +54,6 @@ export class MusicComponent {
 
     });
     this.scale.valueChanges.subscribe(() => {
-
-    });
-    this.shape.valueChanges.subscribe(() => {
 
     });
   }
@@ -113,5 +107,38 @@ export class MusicComponent {
 
   isNoteInScale(note: string) {
     return this.getScale().includes(note);
+  }
+
+  getNoteDegree(note: string) {
+    const map: any = {
+      "-12": 1,
+      "-11": 2,
+      "-10": 2,
+      "-9": 3,
+      "-8": 3,
+      "-7": 4,
+      "-6": "4/5",
+      "-5": 5,
+      "-4": 6,
+      "-3": 6,
+      "-2": 7,
+      "-1": 7,
+      0: 1,
+      1: 2,
+      2: 2,
+      3: 3,
+      4: 3,
+      5: 4,
+      6: "4/5",
+      7: 5,
+      8: 6,
+      9: 6,
+      10: 7,
+      11: 7,
+      12: 1
+    };
+    const i = this.fundamentalNotes.findIndex(x => x === this.key.value);
+    const j = this.fundamentalNotes.findIndex(x => x === note);
+    return map[(j - i)];
   }
 }
