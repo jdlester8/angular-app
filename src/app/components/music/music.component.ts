@@ -71,10 +71,6 @@ export class MusicComponent {
     });
   }
 
-  mathTrunc(n: number) {
-    return Math.trunc(n);
-  }
-
   getScale(): Array<string> {
     let scaleMap: Array<number>;
     if (this.scale.value === "None") {

@@ -1,0 +1,37 @@
+[
+    { "name": "white_rook_a1", "path": "white_rook.svg", "file": "a", "rank": 1 },
+    { "name": "white_knight_b1", "path": "white_knight.svg", "file": "b", "rank": 1 },
+    { "name": "white_bishop_c1", "path": "white_bishop.svg", "file": "c", "rank": 1 },
+    { "name": "white_queen", "path": "white_queen.svg", "file": "d", "rank": 1 },
+    { "name": "white_king", "path": "white_king.svg", "file": "e", "rank": 1 },
+    { "name": "white_bishop_f1", "path": "white_bishop.svg", "file": "f", "rank": 1 },
+    { "name": "white_knight_g1", "path": "white_knight.svg", "file": "g", "rank": 1 },
+    { "name": "white_rook_h1", "path": "white_rook.svg", "file": "h", "rank": 1 },
+
+    { "name": "black_rook_a8", "path": "black_rook.svg", "file": "a", "rank": 8 },
+    { "name": "black_knight_b8", "path": "black_knight.svg", "file": "b", "rank": 8 },
+    { "name": "black_bishop_c8", "path": "black_bishop.svg", "file": "c", "rank": 8 },
+    { "name": "black_queen", "path": "black_queen.svg", "file": "d", "rank": 8 },
+    { "name": "black_king", "path": "black_king.svg", "file": "e", "rank": 8 },
+    { "name": "black_bishop_f8", "path": "black_bishop.svg", "file": "f", "rank": 8 },
+    { "name": "black_knight_g8", "path": "black_knight.svg", "file": "g", "rank": 8 },
+    { "name": "black_rook_h8", "path": "black_rook.svg", "file": "h", "rank": 8 },
+
+    { "name": "white_pawn_a2", "path": "white_pawn.svg", "file": "a", "rank": 2 },
+    { "name": "white_pawn_b2", "path": "white_pawn.svg", "file": "b", "rank": 2 },
+    { "name": "white_pawn_c2", "path": "white_pawn.svg", "file": "c", "rank": 2 },
+    { "name": "white_pawn_d2", "path": "white_pawn.svg", "file": "d", "rank": 2 },
+    { "name": "white_pawn_e2", "path": "white_pawn.svg", "file": "e", "rank": 2 },
+    { "name": "white_pawn_f2", "path": "white_pawn.svg", "file": "f", "rank": 2 },
+    { "name": "white_pawn_g2", "path": "white_pawn.svg", "file": "g", "rank": 2 },
+    { "name": "white_pawn_h2", "path": "white_pawn.svg", "file": "h", "rank": 2 },
+
+    { "name": "black_pawn_a7", "path": "black_pawn.svg", "file": "a", "rank": 7 },
+    { "name": "black_pawn_b7", "path": "black_pawn.svg", "file": "b", "rank": 7 },
+    { "name": "black_pawn_c7", "path": "black_pawn.svg", "file": "c", "rank": 7 },
+    { "name": "black_pawn_d7", "path": "black_pawn.svg", "file": "d", "rank": 7 },
+    { "name": "black_pawn_e7", "path": "black_pawn.svg", "file": "e", "rank": 7 },
+    { "name": "black_pawn_f7", "path": "black_pawn.svg", "file": "f", "rank": 7 },
+    { "name": "black_pawn_g7", "path": "black_pawn.svg", "file": "g", "rank": 7 },
+    { "name": "black_pawn_h7", "path": "black_pawn.svg", "file": "h", "rank": 7 }
+]

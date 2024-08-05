@@ -9,15 +9,15 @@ import { Node } from '../../classes/network-graph/node';
 export class NodeBehaviorDirective {
   
   @Input() node: Node;
-  @Output() nodeSelected: EventEmitter<Node>;
+  //@Output() nodeSelected: EventEmitter<Node>;
 
   constructor(private networkService: Networkv3Service) {
-    this.nodeSelected = new EventEmitter<Node>();
+    //this.nodeSelected = new EventEmitter<Node>();
   }
 
   @HostListener("mousedown", ["$event"])
   nodeOnClick() {
-    this.nodeSelected.emit(this.node);
+    //this.nodeSelected.emit(this.node);
     //this.networkService.nodeClicked(this.node);
   }
 

@@ -20,7 +20,6 @@
   dragBehavior 
   (dragNode)="drag($event)"
   (dragNodeEnd)="dragEnd($event)"
-  linkBehavior 
   width="100%" height="100%">
   @if (selectLine) {
     <line
@@ -42,7 +41,7 @@
       </line>
     }
   }
-  @for (vertex of graph.getVertices(); track vertex) {
+  @for (node of graph.getVertices(); track node) {
     <!-- 
     <circle nodeBehavior
       [node]="vertex"
@@ -56,7 +55,7 @@
       (contextmenu)="onContextMenu($event, vertex)">
     </circle>
     -->
-    <svg [innerHTML]="safeSvg"></svg>
+    <svg:g switch transform="translate(100 100)" dragBehavior/>
   }
 </svg>
 

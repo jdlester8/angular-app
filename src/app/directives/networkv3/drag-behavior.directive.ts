@@ -11,7 +11,7 @@ export class DragBehaviorDirective {
   @Output() dragNode: EventEmitter<Point>;
   @Output() dragNodeEnd: EventEmitter<Point>;
 
-  constructor(private networkService: Networkv3Service, private cdr: ChangeDetectorRef) {
+  constructor() {
     this.dragNode = new EventEmitter<Point>();
     this.dragNodeEnd = new EventEmitter<Point>();
   }

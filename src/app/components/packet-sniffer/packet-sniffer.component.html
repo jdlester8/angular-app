@@ -1,0 +1,46 @@
+@if (socket.readyState === socket.CLOSED) { <div style="background-color: rgba(255, 0, 0, 0.5)">Socket closed</div> } 
+@else if (socket.readyState === socket.OPEN) { <div style="background-color: lightgreen">Socket open</div> }
+<div>Remote Host <input [formControl]="endpoint"> Filter <input></div>
+<table>
+	<tr><td>No.</td><td>Time</td><td>Source</td><td>Destination</td><td>Protocol</td><td>Length</td><td>Info</td></tr>
+	@for (frame of frames; track frame) {
+        @if (frame.payload.ethertype == 2054) {
+            <tr (click)="selectFrame(frame)" [style.background-color]="getProtocolBackgroundColor(frame)">
+                <td></td>
+                <td>{{frame.pcap_header.tv_sec}}</td>
+                <td>{{frame.payload.payload.sender_ha.addr}}</td>
+                <td>{{frame.payload.payload.target_ha.addr}}</td>
+                <td>{{getProtocol(frame)}}</td>
+                <td></td>
+                <td></td>
+            </tr>
+        } @else {
+            <tr (click)="selectFrame(frame)" [style.background-color]="getProtocolBackgroundColor(frame)">
+                <td></td>
+                <td>{{frame.pcap_header.tv_sec}}</td>
+                <td>{{frame.payload.payload.saddr.addr}}</td>
+                <td>{{frame.payload.payload.daddr.addr}}</td>
+                <td>{{getProtocol(frame)}}</td>
+                <td>{{frame.payload.payload.length}}</td>
+                <td>{{frame.payload.payload.sport}} -> {{frame.payload.payload.dport}}</td>
+            </tr>
+        }
+    }
+</table>
+
+@if (selectedFrame) {
+    <div style="position: fixed; bottom: 0px; background-color: rgba(255, 255, 255); width: 100%; border-top: 2px solid black;">
+        <table>
+            <tr><td>EtherType</td><td>{{selectedFrame.ethertype}}</td></tr>
+            <tr><td>Hardware Source</td><td>{{selectedFrame.shost.addr}}</td></tr>
+            <tr><td>Hardware Destination</td><td>{{selectedFrame.dhost.addr}}</td></tr>
+            <tr><td>IP Version</td><td>{{selectedFrame.payload.version}}</td></tr>
+            <tr><td>IP Source</td><td>{{selectedFrame.payload.saddr.addr}}</td></tr>
+            <tr><td>IP Destination</td><td>{{selectedFrame.payload.daddr.addr}}</td></tr>
+            <tr><td>IP Protocol</td><td>{{selectedFrame.payload.protocol}}</td></tr>
+            <tr><td>Transport Destination</td><td>{{selectedFrame.payload.payload.sport}}</td></tr>
+            <tr><td>Transport Destination</td><td>{{selectedFrame.payload.payload.dport}}</td></tr>
+            <tr><td>Data</td><td>{{selectedFrame.payload.payload.data.data}}</td></tr>
+        </table>
+    </div> 
+    }

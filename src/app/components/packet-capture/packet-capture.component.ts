@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import * as d3 from "d3";
 import { Packet } from '../../interfaces/interfaces'
 import { CommonModule } from '@angular/common';
 
