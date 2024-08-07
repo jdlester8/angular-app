@@ -11,15 +11,7 @@ import { AsyncPipe } from '@angular/common';
   styleUrl: './canvas.component.css'
 })
 export class CanvasComponent implements AfterViewInit {
-  @ViewChild("canvas") canvas: ElementRef<HTMLCanvasElement>;
-  ctx$: BehaviorSubject<CanvasRenderingContext2D | null>;
-
-  constructor(private cdr: ChangeDetectorRef) {
-    this.ctx$ = new BehaviorSubject<CanvasRenderingContext2D | null>(null);
-  }
-
-  ngAfterViewInit() {
-    this.ctx$.next(this.canvas.nativeElement.getContext("2d"));
-    this.cdr.detectChanges();
+  ngAfterViewInit(): void {
+      
   }
 }

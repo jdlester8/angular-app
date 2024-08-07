@@ -36,57 +36,57 @@ export abstract class Chess {
     static turn: string = "white";
   
     static fileToXPosition(file: string): number {
-      return Chess.files.indexOf(file) * Chess.squareWidth;
+        return Chess.files.indexOf(file) * Chess.squareWidth;
     }
   
     static rankToYPosition(rank: number) {
-      return (8 - rank) * Chess.squareHeight;
+        return (8 - rank) * Chess.squareHeight;
     }
   
     static XPositionToFile(x: number): string {
-      let index = Math.floor(x / Chess.squareWidth);
-      return Chess.files[index];
+        let index = Math.floor(x / Chess.squareWidth);
+        return Chess.files[index];
     }
   
     static YPositionToRank(y: number): number {
-      let index = Math.floor(y / Chess.squareHeight);
-      return 8 - index;
+        let index = Math.floor(y / Chess.squareHeight);
+        return 8 - index;
     }
   
     async fetchData() {
-      for (let chessPieceData of await fetchJSON("/assets/chess-pieces.json")) {
-        let name = chessPieceData.name;
-        let path = chessPieceData.path;
-        let rank = chessPieceData.rank;
-        let file = chessPieceData.file;
-        let img = await fetchSVG("/assets/" + path);
-        Chess.pieces.push(new ChessPiece(name, img, file, rank));
-      }
+        for (let chessPieceData of await fetchJSON("/assets/chess-pieces.json")) {
+            let name = chessPieceData.name;
+            let path = chessPieceData.path;
+            let rank = chessPieceData.rank;
+            let file = chessPieceData.file;
+            let img = await fetchSVG("/assets/" + path);
+            Chess.pieces.push(new ChessPiece(name, img, file, rank));
+        }
     }
   
     draw(ctx: CanvasRenderingContext2D) {
-      let x = 0;
-      let y = 0;
-      let lightSquare = true;
-      for (let file of Chess.files) {
-        y = 0;
-        lightSquare = !lightSquare;
-        for (let rank of Chess.ranks) {
-          lightSquare = !lightSquare;
-          ctx.fillStyle = lightSquare ? "#eeeed2" : "#769656";
-          ctx.fillRect(x*50, y*50, 50, 50);
-          y++;
+        let x = 0;
+        let y = 0;
+        let lightSquare = true;
+        for (let file of Chess.files) {
+            y = 0;
+            lightSquare = !lightSquare;
+            for (let rank of Chess.ranks) {
+                lightSquare = !lightSquare;
+                ctx.fillStyle = lightSquare ? "#eeeed2" : "#769656";
+                ctx.fillRect(x * 50, y * 50, 50, 50);
+                y++;
+            }
+            x++;
         }
-        x++;
-      }
-      for (let piece of Chess.pieces) {
-        if (piece !== Chess.selectedPiece) {
-          ctx.drawImage(piece.img, Chess.fileToXPosition(piece.file), Chess.rankToYPosition(piece.rank), Chess.squareWidth, Chess.squareHeight);
-        } else {
-          ctx.drawImage(piece.img, Chess.selectedPiece.x, Chess.selectedPiece.y, Chess.squareWidth, Chess.squareHeight);
+        for (let piece of Chess.pieces) {
+            if (piece !== Chess.selectedPiece) {
+                ctx.drawImage(piece.img, Chess.fileToXPosition(piece.file), Chess.rankToYPosition(piece.rank), Chess.squareWidth, Chess.squareHeight);
+            } else {
+                ctx.drawImage(piece.img, Chess.selectedPiece.x, Chess.selectedPiece.y, Chess.squareWidth, Chess.squareHeight);
+            }
         }
-      }
-      requestAnimationFrame(() => this.draw(ctx!));
+        requestAnimationFrame(() => this.draw(ctx!));
     }
 
     checkTurn(): boolean {
@@ -168,25 +168,178 @@ export abstract class Chess {
                (Chess.selectedPiece!.name.includes("black") && targetPiece.name.includes("white"));
     }
 
+    isFileCollision(targetFile: string, targetRank: number): boolean {
+        if (!Chess.selectedPiece) return false;
+    
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+    
+        if (currentFile !== targetFile) {
+            // Not a vertical move
+            return false;
+        }
+    
+        const rankDirection = targetRank > currentRank ? 1 : -1;
+        let rankIndex = currentRank + rankDirection;
+    
+        while (rankIndex !== targetRank) {
+            if (!this.isSquareEmpty(currentFile, rankIndex)) {
+                return true; // There is a collision
+            }
+            rankIndex += rankDirection;
+        }
+    
+        return false; // No collision found
+    }    
+
+    isRankCollision(targetFile: string, targetRank: number): boolean {
+        if (!Chess.selectedPiece) return false;
+    
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+    
+        if (currentRank !== targetRank) {
+            // Not a horizontal move
+            return false;
+        }
+    
+        const fileDirection = Chess.files.indexOf(targetFile) > Chess.files.indexOf(currentFile) ? 1 : -1;
+        let fileIndex = Chess.files.indexOf(currentFile) + fileDirection;
+    
+        while (fileIndex !== Chess.files.indexOf(targetFile)) {
+            const file = Chess.files[fileIndex];
+            if (!this.isSquareEmpty(file, currentRank)) {
+                return true; // There is a collision
+            }
+            fileIndex += fileDirection;
+        }
+    
+        return false; // No collision found
+    }    
+
+    isDiagonalCollision(targetFile: string, targetRank: number): boolean {
+        if (!Chess.selectedPiece) return false;
+    
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+        const fileDiff = Chess.files.indexOf(targetFile) - Chess.files.indexOf(currentFile);
+        const rankDiff = targetRank - currentRank;
+    
+        if (Math.abs(fileDiff) !== Math.abs(rankDiff)) {
+            // Not a diagonal move
+            return false;
+        }
+    
+        const fileDirection = fileDiff > 0 ? 1 : -1;
+        const rankDirection = rankDiff > 0 ? 1 : -1;
+    
+        let fileIndex = Chess.files.indexOf(currentFile) + fileDirection;
+        let rankIndex = currentRank + rankDirection;
+    
+        while (fileIndex !== Chess.files.indexOf(targetFile) && rankIndex !== targetRank) {
+            const file = Chess.files[fileIndex];
+            const rank = rankIndex;
+    
+            if (!this.isSquareEmpty(file, rank)) {
+                return true; // There is a collision
+            }
+    
+            fileIndex += fileDirection;
+            rankIndex += rankDirection;
+        }
+    
+        return false; // No collision found
+    }    
+
     moveKing(targetFile: string, targetRank: number): boolean {
+        if (!Chess.selectedPiece) return false;
+
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+        const fileDiff = Chess.files.indexOf(targetFile) - Chess.files.indexOf(currentFile);
+        const rankDiff = targetRank - currentRank;
+
+        if (Math.abs(fileDiff) <= 1 && Math.abs(rankDiff) <= 1) {
+            return this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank);
+        }
+
         return false;
     }
 
     moveQueen(targetFile: string, targetRank: number): boolean {
-        return false;
-    }
+        if (!Chess.selectedPiece) return false;
+    
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+        const fileDiff = Chess.files.indexOf(targetFile) - Chess.files.indexOf(currentFile);
+        const rankDiff = targetRank - currentRank;
+    
+        if (Math.abs(fileDiff) === Math.abs(rankDiff)) {
+            // Diagonal move
+            return !this.isDiagonalCollision(targetFile, targetRank) && (this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank));
+        } else if (currentFile === targetFile) {
+            // Vertical move
+            return !this.isFileCollision(targetFile, targetRank) && (this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank));
+        } else if (currentRank === targetRank) {
+            // Horizontal move
+            return !this.isRankCollision(targetFile, targetRank) && (this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank));
+        }
+    
+        return false; // Not a valid queen move
+    }    
 
     moveKnight(targetFile: string, targetRank: number): boolean {
+        if (!Chess.selectedPiece) return false;
+
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+        const fileDiff = Math.abs(Chess.files.indexOf(targetFile) - Chess.files.indexOf(currentFile));
+        const rankDiff = Math.abs(targetRank - currentRank);
+
+        if ((fileDiff === 2 && rankDiff === 1) || (fileDiff === 1 && rankDiff === 2)) {
+            return this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank);
+        }
+
         return false;
     }
 
     moveBishop(targetFile: string, targetRank: number): boolean {
+        if (!Chess.selectedPiece) return false;
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+        const fileDiff = Chess.files.indexOf(targetFile) - Chess.files.indexOf(currentFile);
+        const rankDiff = targetRank - currentRank;
+        if (Math.abs(fileDiff) === Math.abs(rankDiff) && !this.isDiagonalCollision(targetFile, targetRank)) {
+            return this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank);
+        }
         return false;
     }
 
     moveRook(targetFile: string, targetRank: number): boolean {
-        return false;
+        if (!Chess.selectedPiece) return false;
+    
+        const piece = Chess.selectedPiece;
+        const currentFile = piece.file;
+        const currentRank = piece.rank;
+    
+        if (currentFile === targetFile) {
+            // Vertical move
+            return !this.isFileCollision(targetFile, targetRank) && (this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank));
+        } else if (currentRank === targetRank) {
+            // Horizontal move
+            return !this.isRankCollision(targetFile, targetRank) && (this.isSquareEmpty(targetFile, targetRank) || this.isEnemyPiece(targetFile, targetRank));
+        }
+    
+        return false; // Not a valid rook move
     }
+    
 
     getPieceByPosition(file: string, rank: number): ChessPiece | undefined {
         return Chess.pieces.find(p => p.file === file && p.rank === rank);
@@ -195,7 +348,7 @@ export abstract class Chess {
     finishTurn() {
         Chess.turn = Chess.turn === "white" ? "black" : "white";
     }
-  }
+}
 
 function fetchJSON(path: string): Promise<Array<any>> {
     return new Promise(async (resolve) => {
@@ -208,13 +361,13 @@ function fetchSVG(path: string): Promise<HTMLImageElement> {
     return new Promise(async (resolve) => {
         let response = await fetch(path);
         let svgText = await response.text();
-        const blob = new Blob([svgText], {type: 'image/svg+xml'});
+        const blob = new Blob([svgText], { type: 'image/svg+xml' });
         const url = URL.createObjectURL(blob);
         const image = document.createElement('img');
         image.addEventListener('load', () => {
-        URL.revokeObjectURL(url);
-        resolve(image);
-        }, {once: true});
+            URL.revokeObjectURL(url);
+            resolve(image);
+        }, { once: true });
         image.src = url;
     });
 }

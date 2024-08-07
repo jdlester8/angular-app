@@ -27,4 +27,5 @@ export const routes: Routes = [
   { path: 'chart', component: GraphComponent},
   { path: 'audio', component: AudioComponent},
   { path: 'chess', component: ChessComponent},
+  { path: 'network', component: NetworkComponent},
 ];
