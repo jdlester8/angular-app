@@ -1,11 +1,14 @@
 <div>
     Tuning <select [formControl]="tuning">
         <option>Standard</option>
+        <option>Half Step Down (Eb)</option>
         <option>Drop D</option>
+        <option>DADAAD</option>
         <option>Drop C#</option>
         <option>Drop C</option>
         <option>Drop B</option>
         <option>Drop A#</option>
+        <option>Open Esus2</option>
     </select>
     Key <select [formControl]="key">
         @for (note of fundamentalNotes; track note; let i = $index) {
@@ -20,6 +23,7 @@
         <option value="MinorPentatonic">Minor Pentatonic</option>
         <option value="MajorTriad">Major Triad</option>
         <option value="MinorTriad">Minor Triad</option>
+        <option value="Dominant7th">Dominant 7th</option>
     </select>
     Note Format <select [formControl]="format">
         <option value="letter">Letter</option>

@@ -27,23 +27,28 @@ export class MusicComponent {
     this.format = new FormControl("letter");
 
     this.tuning.valueChanges.subscribe((event) => {
-      console.log(event);
       const tunings = [
         "Standard",
+        "Half Step Down (Eb)",
         "Drop D",
+        "DADAAD",
         "Drop C#",
         "Drop C",
         "Drop B",
-        "Drop A#"
+        "Drop A#",
+        "Open Esus2"
       ];
       const index = tunings.findIndex(x=>x===event);
       const strings = [
         [["E"], ["A"], ["D"], ["G"], ["B"], ["E"]],
+        [["Eb"], ["Ab"], ["C#"], ["F#"], ["Bb"], ["Eb"]],
         [["D"], ["A"], ["D"], ["G"], ["B"], ["E"]],
+        [["D"], ["A"], ["D"], ["A"], ["A"], ["D"]],
         [["C#"], ["Ab"], ["C#"], ["F#"], ["Bb"], ["Eb"]],
         [["C"], ["G"], ["C"], ["F"], ["A"], ["D"]],
         [["B"], ["Bb"], ["B"], ["E"], ["Ab"], ["C#"]],
         [["Bb"], ["F"], ["Bb"], ["Eb"], ["G"], ["C"]],
+        [["E"], ["B"], ["E"], ["F#"], ["B"], ["E"]]
       ];
       if (index >= 0 && index < tunings.length) {
         this.strings = strings[index];
@@ -83,11 +88,13 @@ export class MusicComponent {
       scaleMap = [0, 2, 4, 7, 9];
     } else if (this.scale.value === "MinorPentatonic") {
       scaleMap = [0, 3, 5, 7, 10];
-    }  else if (this.scale.value === "MajorTriad") {
+    } else if (this.scale.value === "MajorTriad") {
       scaleMap = [0, 4, 7];
-    }  else if (this.scale.value === "MinorTriad") {
+    } else if (this.scale.value === "MinorTriad") {
       scaleMap = [0, 3, 7];
-    }  else {
+    } else if (this.scale.value === "Dominant7th") {
+      scaleMap = [0, 4, 7, 10];
+    } else {
       scaleMap = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     }
 
@@ -110,26 +117,26 @@ export class MusicComponent {
       "-12": 1,
       "-11": 2,
       "-10": 2,
-      "-9": 3,
+      "-9": "b3",
       "-8": 3,
       "-7": 4,
-      "-6": "4/5",
+      "-6": "b5",
       "-5": 5,
-      "-4": 6,
+      "-4": "b6",
       "-3": 6,
-      "-2": 7,
+      "-2": "b7",
       "-1": 7,
       0: 1,
       1: 2,
       2: 2,
-      3: 3,
+      3: "b3",
       4: 3,
       5: 4,
-      6: "4/5",
+      6: "b5",
       7: 5,
-      8: 6,
+      8: "b6",
       9: 6,
-      10: 7,
+      10: "b7",
       11: 7,
       12: 1
     };

@@ -1,0 +1,13 @@
+.custom-context-menu {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+  
+  .custom-context-menu div {
+    padding: 5px 10px;
+  }
+  
+  .custom-context-menu div:hover {
+    background-color: #f1f1f1;
+  }
