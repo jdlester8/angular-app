@@ -11,6 +11,6 @@
 <div class="command-line-container">
   <input type="text" [(ngModel)]="command" (keydown.enter)="executeCommand()" placeholder="Enter command..." />
   <div class="command-output">
-    <pre>{{ commandOutput }}</pre>
+    <pre [innerHTML]="commandOutput"></pre>
   </div>
 </div>

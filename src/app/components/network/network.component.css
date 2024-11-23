@@ -1,3 +1,50 @@
+.command-line-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #222;
+  color: white;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-height: 150px;  /* Set a maximum height to avoid excessive expansion */
+  overflow-y: auto;   /* Enable scrolling if the content exceeds the max height */
+}
+
+.command-line-container input {
+  width: 100%;
+  padding: 10px;
+  background-color: #333;
+  border: none;
+  color: white;
+  font-size: 14px;
+  border-radius: 4px;
+  white-space: pre-wrap; /* Allows the text to wrap within the input */
+  word-wrap: break-word;
+}
+
+.command-line-container input::placeholder {
+  color: #bbb;
+}
+
+.command-output {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ccc;
+  max-height: 200px;  /* Limit the height of the output area */
+  overflow-y: auto;   /* Enable scrolling if the output is too long */
+  white-space: pre-wrap; /* Allows the output to wrap */
+  word-wrap: break-word;
+  word-break: break-word;
+  min-height: 30px;  /* Ensure there's always space for the output */
+}
+
+.command-line-container input:focus {
+  outline: none;
+}
+
 .custom-context-menu {
   font-family: Arial, sans-serif;
   font-size: 14px;
@@ -45,37 +92,4 @@
 
 .modal-content button:hover {
   background: #57a18a;
-}
-
-.command-line-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #222;
-  color: white;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.command-line-container input {
-  width: 100%;
-  padding: 10px;
-  background-color: #333;
-  border: none;
-  color: white;
-  font-size: 14px;
-  border-radius: 4px;
-}
-
-.command-line-container input::placeholder {
-  color: #bbb;
-}
-
-.command-output {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #ccc;
 }

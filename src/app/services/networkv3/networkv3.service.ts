@@ -100,7 +100,7 @@ export class MyNode {
   fx: number | null;
   fy: number | null;
   
-  constructor(graphService: GraphService, ip?: IPAddress, mac?: MACAddress) {
+  constructor(graphService: GraphService) {
     this.routing_table = new Map();
     this.arp_table = new Map();
     this.mac_table = new Map();
@@ -111,9 +111,6 @@ export class MyNode {
     this.fx = Math.random() * 800;
     this.fy = Math.random() * 600;
     
-    if (ip && mac) {
-      this.addInterface(ip, mac);
-    }
     graphService.addNode(this);
   }
 
@@ -125,14 +122,20 @@ export class MyNode {
 }
 
 export class Host extends MyNode {
-  constructor(graphService: GraphService, ip: IPAddress) {
-    super(graphService, ip);
+  constructor(graphService: GraphService) {
+    super(graphService);
+  }
+}
+
+class Controller extends MyNode {
+  constructor(graphService: GraphService) {
+    super(graphService);
   }
 }
 
 export class Router extends MyNode {
-  constructor(graphService: GraphService, ip: IPAddress) {
-    super(graphService, ip);
+  constructor(graphService: GraphService) {
+    super(graphService);
   }
 }
 
@@ -149,8 +152,8 @@ export class Network {
 export class BusNetwork extends Network {
   constructor(graphService: GraphService, network: IPAddress, netmask: Netmask) {
     super(graphService, network, netmask);
-    const hosts = Array.from({ length: 10 }, (_, i) => new Host(graphService, new IPAddress(network.addr + 2 + i)));
-    const r1 = new Router(graphService, new IPAddress(network.addr + 1));
+    const hosts = Array.from({ length: 10 }, (_, i) => new Host(graphService));
+    const r1 = new Router(graphService);
     graphService.addEdge([r1, ...hosts]);
   }
 }
@@ -158,8 +161,8 @@ export class BusNetwork extends Network {
 export class PointToPointNetwork extends Network {
   constructor(graphService: GraphService, network: IPAddress, netmask: Netmask) {
     super(graphService, network, netmask);
-    const r1 = new Router(graphService, new IPAddress(network.addr + 1));
-    const r2 = new Router(graphService, new IPAddress(network.addr + 2));
+    const r1 = new Router(graphService);
+    const r2 = new Router(graphService);
     graphService.addEdge([r1, r2]);
   }
 }

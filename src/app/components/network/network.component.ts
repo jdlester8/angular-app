@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { GraphService, MyNode } from '../../services/networkv3/networkv3.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';  // Import DomSanitizer
 
 @Component({
   selector: 'app-network',
@@ -15,9 +16,13 @@ export class NetworkComponent {
   selectedNode: MyNode | null = null;
   isModalVisible: boolean = false;
   command: string = '';
-  commandOutput: string = ''; 
+  commandOutput: SafeHtml = '';  // Change type to SafeHtml to store sanitized HTML
 
-  constructor(private graphService: GraphService, private el: ElementRef) {}
+  constructor(
+    private graphService: GraphService,
+    private el: ElementRef,
+    private sanitizer: DomSanitizer  // Inject DomSanitizer
+  ) {}
 
   ngOnInit(): void {
     this.createForceDirectedGraph();
@@ -27,7 +32,7 @@ export class NetworkComponent {
     const graph = this.graphService.getGraph();
     const nodes = Array.from(graph.keys());
     const edges: { source: MyNode; target: MyNode }[] = [];
-  
+
     graph.forEach((neighbors, node) => {
       neighbors.forEach(neighbor => {
         if (!edges.some(edge => edge.source === neighbor && edge.target === node)) {
@@ -35,17 +40,17 @@ export class NetworkComponent {
         }
       });
     });
-  
+
     const width = 800;
     const height = 600;
-  
+
     const svg = d3.select(this.el.nativeElement)
       .append('svg')
       .attr('width', width)
       .attr('height', height);
-  
+
     const graphGroup = svg.append('g');
-  
+
     svg.call(
       d3.zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.5, 3])
@@ -53,19 +58,19 @@ export class NetworkComponent {
           graphGroup.attr('transform', event.transform);
         })
     );
-  
+
     const simulation = d3.forceSimulation(nodes as d3.SimulationNodeDatum[])
       .force('link', d3.forceLink(edges as d3.SimulationLinkDatum<d3.SimulationNodeDatum>[]).id((d: any) => d).distance(100))
       .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2));
-  
+
     const link = graphGroup.append('g')
       .selectAll('line')
       .data(edges)
       .join('line')
       .attr('stroke', '#999')
       .attr('stroke-width', 2);
-  
+
     const node = graphGroup.append('g')
       .selectAll('circle')
       .data(nodes)
@@ -81,7 +86,7 @@ export class NetworkComponent {
       )
       .on('click', (event: MouseEvent, d: MyNode) => this.showNodeDetails(d))
       .on('contextmenu', (event: MouseEvent, d: MyNode) => this.showContextMenu(event, d));
-  
+
     const label = graphGroup.append('g')
       .selectAll('text')
       .data(nodes)
@@ -90,18 +95,18 @@ export class NetworkComponent {
       .attr('y', 5)
       .text(d => this.getNodeLabel(d))
       .style('font-size', '12px');
-  
+
     simulation.on('tick', () => {
       link
         .attr('x1', d => (d.source as any).x)
         .attr('y1', d => (d.source as any).y)
         .attr('x2', d => (d.target as any).x)
         .attr('y2', d => (d.target as any).y);
-  
+
       node
         .attr('cx', d => d.x)
         .attr('cy', d => d.y);
-  
+
       label
         .attr('x', d => d.x + 15)
         .attr('y', d => d.y + 5);
@@ -142,9 +147,9 @@ export class NetworkComponent {
 
   private showContextMenu(event: MouseEvent, node: MyNode): void {
     event.preventDefault();
-  
+
     d3.select('.custom-context-menu').remove();
-  
+
     const contextMenu = d3.select('body')
       .append('div')
       .attr('class', 'custom-context-menu')
@@ -156,7 +161,7 @@ export class NetworkComponent {
       .style('z-index', '1000')
       .style('left', `${event.pageX}px`)
       .style('top', `${event.pageY}px`);
-  
+
     contextMenu.append('div')
       .text('View Details')
       .style('cursor', 'pointer')
@@ -164,7 +169,7 @@ export class NetworkComponent {
         alert(`Details of Node: ${node}`);
         contextMenu.remove();
       });
-  
+
     contextMenu.append('div')
       .text('Delete Node')
       .style('cursor', 'pointer')
@@ -172,7 +177,7 @@ export class NetworkComponent {
         alert(`Deleting Node: ${node}`);
         contextMenu.remove();
       });
-  
+
     d3.select('body').on('click', () => contextMenu.remove());
   }
 
@@ -180,25 +185,21 @@ export class NetworkComponent {
     const parsedCommand = this.command.trim().toLowerCase();
     this.commandOutput = '';  // Reset output before execution
 
-    if (parsedCommand.startsWith('node')) {
-      // Example command: "node <IP>"
-      const ip = parsedCommand.split(' ')[1];
-      if (ip) {
-        const node = this.findNodeByIP(ip);
-        if (node) {
-          this.commandOutput = `Node found: ${node}`;
-        } else {
-          this.commandOutput = `Node with IP ${ip} not found.`;
-        }
-      } else {
-        this.commandOutput = 'Please provide a valid node IP.';
+    if (parsedCommand.startsWith('?')) {
+      this.commandOutput = this.sanitizer.bypassSecurityTrustHtml('<b>Help:</b> List nodes, create nodes');
+    }
+    else if (parsedCommand.startsWith('node')) {
+      const args = parsedCommand.split(' ');
+      if (args[1] === "create") {
+        this.graphService.addNode(new MyNode(this.graphService));
+        this.commandOutput = this.sanitizer.bypassSecurityTrustHtml('<b>Node created</b>');
       }
     } else if (parsedCommand.startsWith('list nodes')) {
-      // Example command: "list nodes"
       const nodes = this.graphService.getGraph();
-      this.commandOutput = `Nodes in graph: ${Array.from(nodes.keys()).join(', ')}`;
+      const nodesList = Array.from(nodes.keys()).join('<br/>');
+      this.commandOutput = this.sanitizer.bypassSecurityTrustHtml(`<b>Nodes in graph:</b><br/>${nodesList}`);
     } else {
-      this.commandOutput = 'Unknown command. Type "list nodes" or "node <IP>".';
+      this.commandOutput = this.sanitizer.bypassSecurityTrustHtml('<b>Unknown command</b>. Type "list nodes" or "node <IP>".');
     }
 
     this.command = ''; // Clear input field after execution
