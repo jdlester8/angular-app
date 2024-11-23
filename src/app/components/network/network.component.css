@@ -1,48 +1,81 @@
 .custom-context-menu {
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    border-radius: 4px;
-  }
-  
-  .custom-context-menu div {
-    padding: 5px 10px;
-  }
-  
-  .custom-context-menu div:hover {
-    background-color: #f1f1f1;
-  }
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  border-radius: 4px;
+}
 
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .modal-content button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    border: none;
-    background: #69b3a2;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .modal-content button:hover {
-    background: #57a18a;
-  }
+.custom-context-menu div {
+  padding: 5px 10px;
+}
+
+.custom-context-menu div:hover {
+  background-color: #f1f1f1;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.modal-content button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  background: #69b3a2;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background: #57a18a;
+}
+
+.command-line-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #222;
+  color: white;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.command-line-container input {
+  width: 100%;
+  padding: 10px;
+  background-color: #333;
+  border: none;
+  color: white;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.command-line-container input::placeholder {
+  color: #bbb;
+}
+
+.command-output {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ccc;
+}

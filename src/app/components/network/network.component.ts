@@ -2,17 +2,20 @@ import { Component, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
 import { GraphService, MyNode } from '../../services/networkv3/networkv3.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-network',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './network.component.html',
   styleUrls: ['./network.component.css']
 })
 export class NetworkComponent {
   selectedNode: MyNode | null = null;
   isModalVisible: boolean = false;
+  command: string = '';
+  commandOutput: string = ''; 
 
   constructor(private graphService: GraphService, private el: ElementRef) {}
 
@@ -171,5 +174,44 @@ export class NetworkComponent {
       });
   
     d3.select('body').on('click', () => contextMenu.remove());
+  }
+
+  executeCommand(): void {
+    const parsedCommand = this.command.trim().toLowerCase();
+    this.commandOutput = '';  // Reset output before execution
+
+    if (parsedCommand.startsWith('node')) {
+      // Example command: "node <IP>"
+      const ip = parsedCommand.split(' ')[1];
+      if (ip) {
+        const node = this.findNodeByIP(ip);
+        if (node) {
+          this.commandOutput = `Node found: ${node}`;
+        } else {
+          this.commandOutput = `Node with IP ${ip} not found.`;
+        }
+      } else {
+        this.commandOutput = 'Please provide a valid node IP.';
+      }
+    } else if (parsedCommand.startsWith('list nodes')) {
+      // Example command: "list nodes"
+      const nodes = this.graphService.getGraph();
+      this.commandOutput = `Nodes in graph: ${Array.from(nodes.keys()).join(', ')}`;
+    } else {
+      this.commandOutput = 'Unknown command. Type "list nodes" or "node <IP>".';
+    }
+
+    this.command = ''; // Clear input field after execution
+  }
+
+  private findNodeByIP(ip: string): MyNode | null {
+    // Find node by IP in the graph
+    const graph = this.graphService.getGraph();
+    for (let node of graph.keys()) {
+      if ("192.168.1.0" === ip) {
+        return node;
+      }
+    }
+    return null;
   }
 }
