@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 function validateRange(value: number, max: number, name: string) {
   if (value < 0) {
@@ -172,14 +173,17 @@ export class PointToPointNetwork extends Network {
 })
 export class GraphService {
   private graph: Map<MyNode, MyNode[]> = new Map();
+  private graphSubject = new BehaviorSubject<Map<MyNode, MyNode[]>>(new Map());
 
   constructor() {
     const n1 = new BusNetwork(this, new IPAddress("192.168.1.0"), new Netmask(24));
     const n2 = new PointToPointNetwork(this, new IPAddress("192.168.2.0"), new Netmask(30));
+    this.graphSubject.next(this.graph);
   }
 
   addNode(node: MyNode): void {
     this.graph.set(node, []);
+    this.graphSubject.next(this.graph);
   }
 
   addEdge(nodes: MyNode[]): void {
@@ -201,9 +205,15 @@ export class GraphService {
       this.graph.get(centralNode)?.push(node);
       this.graph.get(node)?.push(centralNode);
     }
+    this.graphSubject.next(this.graph);
   }
 
   getGraph(): Map<MyNode, MyNode[]> {
     return this.graph;
   }
+
+  getGraphObservable(): Observable<Map<MyNode, MyNode[]>> {
+    return this.graphSubject.asObservable();
+  }
+
 }

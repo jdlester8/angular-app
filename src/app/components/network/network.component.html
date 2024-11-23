@@ -1,4 +1,12 @@
-<div class="graph-container"></div>
+<div class="graph-container">
+  <svg width="800" height="600">
+    <g id="graphGroup">
+      <g id="edges"></g>
+      <g id="nodes"></g>
+      <g id="labels"></g>
+    </g>
+  </svg>
+</div>
 
 <div *ngIf="isModalVisible" class="modal-overlay">
   <div class="modal-content">

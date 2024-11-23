@@ -4,6 +4,7 @@ import { GraphService, MyNode } from '../../services/networkv3/networkv3.service
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';  // Import DomSanitizer
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-network',
@@ -16,7 +17,8 @@ export class NetworkComponent {
   selectedNode: MyNode | null = null;
   isModalVisible: boolean = false;
   command: string = '';
-  commandOutput: SafeHtml = '';  // Change type to SafeHtml to store sanitized HTML
+  commandOutput: SafeHtml = '';
+  private graphSubscription: Subscription;
 
   constructor(
     private graphService: GraphService,
@@ -25,7 +27,22 @@ export class NetworkComponent {
   ) {}
 
   ngOnInit(): void {
-    this.createForceDirectedGraph();
+    this.graphSubscription = this.graphService.getGraphObservable().subscribe(() => {
+      //this.deleteGraph();
+      this.createForceDirectedGraph();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.graphSubscription) {
+      this.graphSubscription.unsubscribe();
+    }
+  }
+
+  private deleteGraph(): void {
+    d3.selectAll('circle').remove();
+    d3.selectAll('line').remove();
+    d3.selectAll('text').remove();
   }
 
   private createForceDirectedGraph(): void {
@@ -44,12 +61,9 @@ export class NetworkComponent {
     const width = 800;
     const height = 600;
 
-    const svg = d3.select(this.el.nativeElement)
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height);
+    const svg = d3.select(this.el.nativeElement).select('svg') as d3.Selection<SVGSVGElement, unknown, d3.BaseType, unknown>;
 
-    const graphGroup = svg.append('g');
+    const graphGroup = svg.select('#graphGroup');
 
     svg.call(
       d3.zoom<SVGSVGElement, unknown>()
@@ -64,30 +78,32 @@ export class NetworkComponent {
       .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
-    const link = graphGroup.append('g')
+    const link = graphGroup.select('#edges')
       .selectAll('line')
       .data(edges)
       .join('line')
       .attr('stroke', '#999')
       .attr('stroke-width', 2);
 
-    const node = graphGroup.append('g')
+    const node = graphGroup.select('#nodes')
       .selectAll('circle')
       .data(nodes)
-      .enter()
-      .append('circle')
-      .attr('r', 10)
-      .attr('fill', '#69b3a2')
-      .call(
-        d3.drag<SVGCircleElement, MyNode>()
-          .on('start', (event: any, d: MyNode) => this.dragStarted(event, d, simulation))
-          .on('drag', (event: any, d: MyNode) => this.dragged(event, d))
-          .on('end', (event: any, d: MyNode) => this.dragEnded(event, d, simulation))
+      .join(
+        enter => enter.append('circle')  // Handle enter selection explicitly
+          .attr('r', 10)
+          .attr('fill', '#69b3a2')
+          .call(d3.drag<SVGCircleElement, MyNode>()
+            .on('start', (event, d) => this.dragStarted(event, d, simulation))
+            .on('drag', (event, d) => this.dragged(event, d))
+            .on('end', (event, d) => this.dragEnded(event, d, simulation))
+          ),
+        update => update,  // No change for update selection
+        exit => exit.remove()  // Remove exit selection
       )
       .on('click', (event: MouseEvent, d: MyNode) => this.showNodeDetails(d))
       .on('contextmenu', (event: MouseEvent, d: MyNode) => this.showContextMenu(event, d));
 
-    const label = graphGroup.append('g')
+    const label = graphGroup.select('#labels')
       .selectAll('text')
       .data(nodes)
       .join('text')
@@ -191,13 +207,13 @@ export class NetworkComponent {
     else if (parsedCommand.startsWith('node')) {
       const args = parsedCommand.split(' ');
       if (args[1] === "create") {
-        this.graphService.addNode(new MyNode(this.graphService));
+        new MyNode(this.graphService);
         this.commandOutput = this.sanitizer.bypassSecurityTrustHtml('<b>Node created</b>');
       }
     } else if (parsedCommand.startsWith('list nodes')) {
       const nodes = this.graphService.getGraph();
-      const nodesList = Array.from(nodes.keys()).join('<br/>');
-      this.commandOutput = this.sanitizer.bypassSecurityTrustHtml(`<b>Nodes in graph:</b><br/>${nodesList}`);
+      const nodesList = Array.from(nodes.keys());
+      this.commandOutput = this.sanitizer.bypassSecurityTrustHtml(`<b>Nodes in graph (${nodesList.length}):</b><br/>${nodesList.join('<br/>')}`);
     } else {
       this.commandOutput = this.sanitizer.bypassSecurityTrustHtml('<b>Unknown command</b>. Type "list nodes" or "node <IP>".');
     }
