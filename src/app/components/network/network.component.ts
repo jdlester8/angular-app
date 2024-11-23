@@ -1,15 +1,19 @@
 import { Component, ElementRef } from '@angular/core';
 import * as d3 from 'd3';
 import { GraphService, MyNode } from '../../services/networkv3/networkv3.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-network',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './network.component.html',
   styleUrls: ['./network.component.css']
 })
 export class NetworkComponent {
+  selectedNode: MyNode | null = null;
+  isModalVisible: boolean = false;
+
   constructor(private graphService: GraphService, private el: ElementRef) {}
 
   ngOnInit(): void {
@@ -37,21 +41,19 @@ export class NetworkComponent {
       .attr('width', width)
       .attr('height', height);
   
-    // Create a group to hold all graph elements (nodes, links, labels)
     const graphGroup = svg.append('g');
   
-    // Add zoom and pan behavior
     svg.call(
       d3.zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.5, 3]) // Zoom scale range
+        .scaleExtent([0.5, 3])
         .on('zoom', (event) => {
-          graphGroup.attr('transform', event.transform); // Apply zoom and pan transformations
+          graphGroup.attr('transform', event.transform);
         })
     );
   
     const simulation = d3.forceSimulation(nodes as d3.SimulationNodeDatum[])
       .force('link', d3.forceLink(edges as d3.SimulationLinkDatum<d3.SimulationNodeDatum>[]).id((d: any) => d).distance(100))
-      .force('charge', d3.forceManyBody().strength(-1000))
+      .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(width / 2, height / 2));
   
     const link = graphGroup.append('g')
@@ -74,7 +76,7 @@ export class NetworkComponent {
           .on('drag', (event: any, d: MyNode) => this.dragged(event, d))
           .on('end', (event: any, d: MyNode) => this.dragEnded(event, d, simulation))
       )
-      .on('contextmenu', (event: MouseEvent, d: MyNode) => this.showContextMenu(event, d));
+      .on('click', (event: MouseEvent, d: MyNode) => this.showNodeDetails(d));
   
     const label = graphGroup.append('g')
       .selectAll('text')
@@ -124,43 +126,13 @@ export class NetworkComponent {
     d.fy = null;
   }
 
-  private showContextMenu(event: MouseEvent, node: MyNode): void {
-    event.preventDefault(); // Prevent the default context menu
-  
-    // Remove any existing context menu
-    d3.select('.custom-context-menu').remove();
-  
-    // Create a new context menu
-    const contextMenu = d3.select('body')
-      .append('div')
-      .attr('class', 'custom-context-menu')
-      .style('position', 'absolute')
-      .style('background-color', '#fff')
-      .style('border', '1px solid #ccc')
-      .style('padding', '10px')
-      .style('box-shadow', '0 2px 4px rgba(0,0,0,0.2)')
-      .style('z-index', '1000')
-      .style('left', `${event.pageX}px`)
-      .style('top', `${event.pageY}px`);
-  
-    // Add menu items
-    contextMenu.append('div')
-      .text('View Details')
-      .style('cursor', 'pointer')
-      .on('click', () => {
-        alert(`Details of Node: ${node}`);
-        contextMenu.remove();
-      });
-  
-    contextMenu.append('div')
-      .text('Delete Node')
-      .style('cursor', 'pointer')
-      .on('click', () => {
-        alert(`Deleting Node: ${node}`);
-        contextMenu.remove();
-      });
-  
-    // Hide the menu when clicking anywhere else
-    d3.select('body').on('click', () => contextMenu.remove());
+  private showNodeDetails(node: MyNode): void {
+    this.selectedNode = node;
+    this.isModalVisible = true;
+  }
+
+  closeModal(): void {
+    this.isModalVisible = false;
+    this.selectedNode = null;
   }
 }

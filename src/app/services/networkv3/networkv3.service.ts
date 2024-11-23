@@ -94,20 +94,23 @@ export class MyNode {
   arp_table: Map<IPAddress, MACAddress>;
   mac_table: Map<MACAddress, Interface>;
   interfaces: Interface[];
+  
   x: number;
   y: number;
   fx: number | null;
   fy: number | null;
-
+  
   constructor(graphService: GraphService, ip?: IPAddress, mac?: MACAddress) {
     this.routing_table = new Map();
     this.arp_table = new Map();
     this.mac_table = new Map();
     this.interfaces = [];
-    this.x = 100;
-    this.y = 100;
+    
+    this.x = 0;
+    this.y = 0;
     this.fx = Math.random() * 800;
     this.fy = Math.random() * 600;
+    
     if (ip && mac) {
       this.addInterface(ip, mac);
     }

@@ -1,1 +1,9 @@
 <div class="graph-container"></div>
+
+<div *ngIf="isModalVisible" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Node Details</h3>
+      <p>Interfaces: {{ selectedNode?.interfaces?.length }}</p>
+      <button (click)="closeModal()">Close</button>
+    </div>
+  </div>
