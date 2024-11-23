@@ -76,7 +76,8 @@ export class NetworkComponent {
           .on('drag', (event: any, d: MyNode) => this.dragged(event, d))
           .on('end', (event: any, d: MyNode) => this.dragEnded(event, d, simulation))
       )
-      .on('click', (event: MouseEvent, d: MyNode) => this.showNodeDetails(d));
+      .on('click', (event: MouseEvent, d: MyNode) => this.showNodeDetails(d))
+      .on('contextmenu', (event: MouseEvent, d: MyNode) => this.showContextMenu(event, d));
   
     const label = graphGroup.append('g')
       .selectAll('text')
@@ -134,5 +135,41 @@ export class NetworkComponent {
   closeModal(): void {
     this.isModalVisible = false;
     this.selectedNode = null;
+  }
+
+  private showContextMenu(event: MouseEvent, node: MyNode): void {
+    event.preventDefault();
+  
+    d3.select('.custom-context-menu').remove();
+  
+    const contextMenu = d3.select('body')
+      .append('div')
+      .attr('class', 'custom-context-menu')
+      .style('position', 'absolute')
+      .style('background-color', '#fff')
+      .style('border', '1px solid #ccc')
+      .style('padding', '10px')
+      .style('box-shadow', '0 2px 4px rgba(0,0,0,0.2)')
+      .style('z-index', '1000')
+      .style('left', `${event.pageX}px`)
+      .style('top', `${event.pageY}px`);
+  
+    contextMenu.append('div')
+      .text('View Details')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        alert(`Details of Node: ${node}`);
+        contextMenu.remove();
+      });
+  
+    contextMenu.append('div')
+      .text('Delete Node')
+      .style('cursor', 'pointer')
+      .on('click', () => {
+        alert(`Deleting Node: ${node}`);
+        contextMenu.remove();
+      });
+  
+    d3.select('body').on('click', () => contextMenu.remove());
   }
 }
